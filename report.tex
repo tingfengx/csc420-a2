@@ -1,0 +1,283 @@
+\documentclass[11pt]{article}
+\usepackage{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage[
+    pdftex, 
+    dvipsnames
+]{xcolor}
+\usepackage[
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=Thistle
+]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{datetime}
+\usepackage{xargs}
+\usepackage{ccicons}
+\usepackage{mdframed}
+\usepackage{caption}
+\usepackage{cancel}
+\usepackage[nottoc]{tocbibind}
+\usepackage[
+    outputdir=.texpadtmp
+]{minted}
+
+% ==== License =====
+\usepackage[
+    type={CC}, 
+    modifier={by-nc-sa}, 
+    version={4.0},
+]{doclicense}
+
+% ==== todo notes ====
+\usepackage[
+    colorinlistoftodos,
+    prependcaption,
+    textsize=tiny
+]{todonotes}
+\newcommandx{\note}[2][1=]{\todo[linecolor=Thistle,backgroundcolor=Thistle!25,bordercolor=Thistle,#1]{#2}}
+\newcommandx{\unsure}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
+\newcommandx{\change}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{#2}}
+\newcommandx{\info}[2][1=]{\todo[linecolor=OliveGreen,backgroundcolor=OliveGreen!25,bordercolor=OliveGreen,#1]{#2}}
+
+% General
+\newcommand{\mc}[1]{\mathcal{#1}}
+
+% Math Bold Font, Vector Notations
+\newcommand{\ba}{\mathbf{a}}
+\newcommand{\bb}{\mathbf{b}}
+\newcommand{\bc}{\mathbf{c}}
+\newcommand{\bd}{\mathbf{d}}
+\newcommand{\be}{\mathbf{e}}
+\renewcommand{\bf}{\mathbf{f}}
+\newcommand{\bg}{\mathbf{g}}
+\newcommand{\bh}{\mathbf{h}}
+\newcommand{\bi}{\mathbf{i}}
+\newcommand{\bj}{\mathbf{j}}
+\newcommand{\bk}{\mathbf{k}}
+\newcommand{\bl}{\mathbf{l}}
+\newcommand{\bm}{\mathbf{m}}
+\newcommand{\bn}{\mathbf{n}}
+\newcommand{\bo}{\mathbf{o}}
+\newcommand{\bp}{\mathbf{p}}
+\newcommand{\bq}{\mathbf{q}}
+\newcommand{\br}{\mathbf{r}}
+\newcommand{\bs}{\mathbf{s}}
+\newcommand{\bt}{\mathbf{t}}
+\newcommand{\bu}{\mathbf{u}}
+\newcommand{\bv}{\mathbf{v}}
+\newcommand{\bw}{\mathbf{w}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\by}{\mathbf{y}}
+\newcommand{\bz}{\mathbf{z}}
+\newcommand{\bzero}{\mathbf{0}}
+
+% Proofs, Structures
+\newcommand{\proof}{\tit{\underline{Proof:}}} % This equivalent to the \begin{proof}\end{proof} block
+\newcommand{\proofforward}{\tit{\underline{Proof($\implies$):}}}
+\newcommand{\proofback}{\tit{\underline{Proof($\impliedby$):}}}
+\newcommand{\proofsuperset}{\tit{\underline{Proof($\supseteq$):}}}
+\newcommand{\proofsubset}{\tit{\underline{Proof($\subseteq$):}}}
+\newcommand{\contradiction}{$\longrightarrow\!\longleftarrow$}
+\newcommand{\qed}{\hfill $\blacksquare$}
+
+% Number Spaces, Vector Space
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\real}{\mathbb{R}}
+\newcommand{\complex}{\mathbb{C}}
+\newcommand{\field}{\mathbb{F}}
+
+% customized commands
+\newcommand{\settag}[1]{\renewcommand{\theenumi}{#1}}
+\newcommand{\tbf}[1]{\textbf{#1}}
+\newcommand{\tit}[1]{\textit{#1}}
+\newcommand{\overbar}[1]{\mkern 1.5mu\overline{\mkern-1.5mu#1\mkern-1.5mu}\mkern 1.5mu}
+\newcommand{\double}[1]{\mathbb{#1}} % Set to behave like that on word
+\newcommand{\trans}[3]{$#1:#2\rightarrow{}#3$}
+\newcommand{\map}[3]{\text{$\left[#1\right]_{#2}^{#3}$}}
+\newcommand{\dime}[1]{\mathrm{dim}(#1)}
+\newcommand{\mat}[2]{M_{#1 \times #2}(\R)}
+\newcommand{\aug}{\fboxsep=-\fboxrule\!\!\!\fbox{\strut}\!\!\!}
+\newcommand{\basecase}{\textsc{\underline{Basis Case:}} }
+\newcommand{\inductive}{\textsc{\underline{Inductive Step:}} }
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\independent}{\perp \!\!\! \perp}
+\newcommand{\codefile}{\texttt{a2\_code.ipynb}}
+
+% Set section number in front of equation enumerations
+\counterwithin{equation}{section}
+\counterwithin{footnote}{section}
+\author{Tingfeng Xia (1003780884)}
+\title{\textsc{CSC420 Assignment \#2}}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Disclosure and Extra Libraries Used}
+\begin{itemize}
+	\item In my solution for Part II, question 5, I used a cropping algorithm \texttt{crop\_center(image, expected\_size)} borrowed from \url{https://stackoverflow.com/questions/39382412/crop-center-portion-of-a-numpy-image}. The original algorithm presented in the post was for 2D array images with one colour channel. I adapted it so it now supports 3D tensor images, with three colour channels. 
+	\item I this assignment, I used the Numba JIT library (\url{https://numba.pydata.org/}) to help optimize my code. Without help from Numba JIT, my seam carving implementation takes more than one hour to complete all 471 iterations on the castle image. With Numba JIT, it takes about three minutes. (more than 20 times improvement)
+	\item I also used the \texttt{tqdm} library for visualization of the progress of the iterative seam carving algorithm. It was not required. 
+\end{itemize}
+
+\section{Part I: Theory}
+\subsection{Q1) Upsampling}
+The original signal received is 
+\begin{equation}
+	S\gets [
+		4, 5, 1, 5, 4
+	]
+\end{equation}
+I will solve this linear interpolation problem using convolution. The first step is to add zeros in between the original signal points. Since we are upsampling by a factor of 4 ($d = 4$), we will add three zeros in between each pair. 
+\begin{equation}
+	S_1 \gets [
+		4, 0, 0, 0, 5, 0, 0, 0, 1, 0, 0, 0, 5, 0, 0, 0, 4
+	]
+\end{equation}
+Suggested on the slides, the convolution filter to use, with $d = 4$ is given by
+\begin{equation}
+	h = [0, 1/4, 1/2, 3/4, 1, 3/4, 1/2, 1/4, 0]
+\end{equation}
+Then, the linear interpolation upsampled result is $h \ast S_1$. My function \texttt{up\_sample(original\_signal, factor)} performs this procedure, and up samples the \texttt{original\_signal} passed in by a factor of \texttt{factor}. Figure \ref{fig:upsample} is the plotted result. 
+\begin{figure}[H]
+	\center\includegraphics[width=\textwidth]{figs/q1_upsample}
+	\caption{Left: Original signal; Right: Upsampled signal using linear interpolation. \label{fig:upsample}}
+\end{figure}
+
+\subsection{Q2) Sufficient Sampling}
+Our interest is to find the sufficient sampling rate of the following signal
+\begin{equation}
+	x(t)=\sin ^{2}\left(2 F_{a} \pi t\right)+\frac{1}{7} \cos \left(F_{b} \pi t\right)+\frac{1}{5} \sin \left(5 F_{c} \pi t\right)
+\end{equation}
+According to Nyquist-Shannon Theorem, we need a sampling rate larger than two times the frequency of the highest frequency component in the original signal. Since the original signal is already in analytical form, and is the sum of three sinusoidal components, it suffices to find the frequency of each component and then take the max. For a signal $s(t)$, I will use the short hand $p_{s(t)}$ to express the period of signal $s(t)$, and $f_{s(t)}$ to mean the frequency. We have
+\begin{equation}
+	p_{\sin^2(2F_a \pi t)} = \frac{\pi}{2F_a \pi} \implies f_{\sin^2(2F_a\pi t)} = \frac{2F_a \pi}{\pi} = 2F_a
+\end{equation}
+\begin{equation}
+	p_{\frac{1}{7} \cos \left(F_{b} \pi t\right)} = p_{\cos \left(F_{b} \pi t\right)} = \frac{2\pi}{F_b \pi} \implies f_{\frac{1}{7} \cos \left(F_{b} \pi t\right)} = \frac{F_b}{2}
+\end{equation}
+\begin{equation}
+	p_{\frac{1}{5} \sin \left(5 F_{c} \pi t\right)} = p_{\sin \left(5 F_{c} \pi t\right)} = \frac{2\pi}{5F_c \pi} \implies f_{\frac{1}{5} \sin \left(5 F_{c} \pi t\right)} = \frac{5F_c}{2}
+\end{equation}
+Thus, a sampling rate $S$ is a Nyquist-Shannon sufficient sampling rate for signal $x(t)$ if 
+\begin{equation}
+	\exists \epsilon \in \real^{>0} \quad s.t. \quad S = 2\cdot \max\left\{ 2F_a, \frac{F_b}{2}, \frac{5F_c}{2} \right\} + \epsilon
+\end{equation}
+\qed
+
+\subsection{Q3) Properties of Second Moment Matrix}
+Define
+\begin{equation}
+	M=\sum_{x} \sum_{y} w(x, y)\left(\begin{array}{cc}
+		I_{x}^{2} & I_{x} I_{y} \\
+		I_{x} I_{y} & I_{y}^{2}
+		\end{array}\right) \quad \text{and} \quad N=\left(\begin{array}{cc}
+		I_{x}^{2} & I_{x} I_{y} \\
+		I_{x} I_{y} & I_{y}^{2}
+	\end{array}\right)
+\end{equation}
+\subsubsection{Eigenvalues}
+The trace of a square matrix is the sum of its eigenvalues, i.e. 
+\begin{equation}
+	\operatorname{trace}(N) = I_x^2 + I_y^2 = \lambda_1 + \lambda_2
+\end{equation}
+But since we shown in class that $\lambda_1 = 0$, then $\lambda_2 = I_x^2 + I_y^2$. \qed
+
+\subsubsection{Positive Semi-definiteness}
+Assuming that $N$ is positive semidefinite, we wish to show that $M$ is also positive semidefinite. Recall that one way to characterize matrix $N$ as positive semidefinite is iff $N$ is such that
+\begin{equation}
+	\forall \bv \neq \bzero, \bv^\top N \bv \geq 0
+\end{equation}
+Let $\bv\neq \bzero \in \real^2$, let's expand $\bv^\top M \bv$, we have
+\begin{align}
+	\bv^\top M \bv 
+	&= \bv^\top \left(\sum_x \sum_y w(x, y) N\right) \bv \\
+	&= \sum_x \sum_y \underbrace{w(x, y)}_{\geq 0} \underbrace{\bv^\top N \bv}_{\geq 0}\\
+	& \geq 0
+\end{align}
+Thus we conclude $M$ is also positive semidefinite. \qed
+
+\section{Part II: Image Resizing with Seam Carving}
+\subsection{Image Gradient}
+Inside \codefile, function \texttt{calc\_grad\_magnitude(image, gx, gy)} computes image gradient magnitude by calculating gradient using \texttt{convolve2d} from \texttt{scipy.signal}. The default convolution filters are Sobel filters. This function is able to handle both grey scale image and coloured images with more than one colour channel. 
+
+\subsection{Dynamic Programming Finding Seam}
+For a image of size $R \times C$, with the top left corner being position $(row=1, col=1)$, the DP approach for this seam finding problem has the following Bellman recurrence relationship
+\begin{equation}
+	f(r, c) = \begin{cases}
+		grad(r, c) & \text{if $r = R$ (last row)} \\
+		\min \begin{cases} f(r+1, c+1)\\ f(r+1, c) \end{cases} + grad(r, c) &\text{if $c = 1$ (left most)} \\
+		\min \begin{cases} f(r+1, c-1)\\ f(r+1, c) \end{cases} + grad(r, c) &\text{if $c = C$ (right most)} \\
+		\min \begin{cases} f(r+1, c+1)\\ f(r+1, c)\\ f(r+1, c-1) \end{cases} + grad(r, c) &\text{otherwise (centre)}
+	\end{cases}
+\end{equation}
+I have to admit that this way of writing is a bit cumbersome, and padding the image with infinity around makes writing the bellman recurrence much easier. But the way I am writing this relationship here is closer to what happens in my implementation, so I decided to go with this style. In \codefile, the function \texttt{get\_energy\_map} implements this recurrence relationship using a bottom up design. 
+
+\subsection{Iterative Seam Carving}
+In \codefile, the function \texttt{seam\_carve(image, expect\_size)} iteratively removes columns of pixels of from the original image, until the desired shape is reached. 
+
+\subsection{Handling Seam Carve Remove Row}
+In \codefile, the function \texttt{seam\_carve(image, expect\_size)} handles removing rows of pixels from the image. It does so by transposing the image, and performs column wise seam carving as usual, and finally transposing back. 
+
+\subsection{Comparing Crop, Scale, and Seam Carve}
+In \codefile, the function \texttt{compare\_result} takes a image, and a desired final size, outputs a image showing the comparison between cropping, scaling, and seam carving. It also handles two stage seam carving, where if we wish to shrink a image in both width and height in seam carving, we shrink one of them at a time. This two stage behaviour is enabled when you specify the optional parameter \texttt{intermediate\_size}. Figures \ref{fig:ex1comp}, \ref{fig:ex2comp}, \ref{fig:ex3comp} are the results. 
+
+\begin{figure}[H]
+	\center\includegraphics[width=\textwidth]{figs/castle_compare}
+	\caption{Comparison between original, cropped, scaled, and seam carved for the image castle (ex1.jpg) \label{fig:ex1comp}}
+\end{figure}
+\begin{figure}[H]
+	\center\includegraphics[width=\textwidth]{figs/cloudy_mountain_comp}
+	\caption{Comparison between original, cropped, scaled, and seam carved for the image cloudy mountain (ex2.jpg) \label{fig:ex2comp}}
+\end{figure}
+\begin{figure}[H]
+	\center\includegraphics[width=\textwidth]{figs/water_mountain_comp}
+	\caption{Comparison between original, cropped, scaled, and seam carved for the image water with mountain (ex3.jpg) \label{fig:ex3comp}}
+\end{figure}
+
+\section{Part III: Corner Detection}
+\subsection{Eigenvalues Plot}
+Figure \ref{fig:p3q2comp} is the plotted result of the eigenvalue pairs for the Second Moment Matrix for each pixel of $I_1$ (left) and $I_2$ (right). 
+\begin{figure}
+	\center\includegraphics[width=0.9\textwidth]{figs/eigens1}
+	\includegraphics[width=0.9\textwidth]{figs/eigens2}
+	\caption{Top: Eigenvalues for $M$ for all pixels in $I_1$, with window size $3 \times 3$, and window gaussian weighting $\sigma = 0.7$; Bottom: Everything else same, except is for image $I_2$\label{fig:p3q2comp}}
+\end{figure}
+
+\subsection{Picking Threshold, and Illustrate}
+For $I_1$, I picked the threshold 0.8e6 for $\lambda_1$ and $\lambda_2$, and for $I_2$ I picked threshold 1.1e6. Figure \ref{fig:corner1} shows the result. 
+
+\begin{figure}
+	\center\includegraphics[width=0.9\textwidth]{figs/I1_corner_1}
+	\includegraphics[width=0.9\textwidth]{figs/I2_corner_1}
+	\caption{Corners detected marked with red, for $I_1$ (top) and $I_2$ (bottom). Both images' Second Moment Matrix were calculated with gaussian window of size $3 \times 3$ and $\sigma = 0.7$. \label{fig:corner1}}
+\end{figure}
+
+\subsection{Using Different Window Function}
+\begin{figure}[H]
+	\center\includegraphics[width=0.5\textwidth]{figs/sketch}
+	\caption{Illustration of how ``shape'' of distribution of eigenvalue pairs have changed. This sketch is not to scale, and it serves solely for the purpose of showing the  change in ``shape''. \label{fig:sketch}}
+\end{figure}
+Previously I experimented with Gaussian window function of size $3 \times 3$ and $\sigma = 0.7$. This time, lets increase $\sigma$ to 5. Figures \ref{fig:I1v2} and \ref{fig:I2v2} shows the results. Figure \ref{fig:sketch} is my sketch illustrating the change in shape of the distribution of eigenvalue pairs. In general, holding everything else constant, with a heavier variance in the gaussian window function, we will be able to detect more corners. 
+
+\begin{figure}
+	\center\includegraphics[width=0.9\textwidth]{figs/eigens1_v2}
+	\includegraphics[width=0.9\textwidth]{figs/I1_corner_2}
+	\caption{Image $I_1$, calculating $M$ using gaussian window function, with size $3 \times 3$, $\sigma = 5$: (Top) Eigenvalues for $M$ for all pixels; (Bottom) Corners detected (marked with red).\label{fig:I1v2}}
+\end{figure}
+\begin{figure}
+	\center\includegraphics[width=0.9\textwidth]{figs/eigens2_v2}
+	\includegraphics[width=0.9\textwidth]{figs/I2_corner_2}
+	\caption{Image $I_2$, calculating $M$ using gaussian window function, with size $3 \times 3$, $\sigma = 5$: (Top) Eigenvalues for $M$ for all pixels; (Bottom) Corners detected (marked with red).\label{fig:I2v2}}
+\end{figure}
+
+
+
+
+\end{document}
