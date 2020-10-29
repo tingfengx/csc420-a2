@@ -165,7 +165,11 @@ According to Nyquist-Shannon Theorem, we need a sampling rate larger than two ti
 \begin{equation}
 	p_{\frac{1}{5} \sin \left(5 F_{c} \pi t\right)} = p_{\sin \left(5 F_{c} \pi t\right)} = \frac{2\pi}{5F_c \pi} \implies f_{\frac{1}{5} \sin \left(5 F_{c} \pi t\right)} = \frac{5F_c}{2}
 \end{equation}
-Thus, a sampling rate $S$ is a Nyquist-Shannon sufficient sampling rate for signal $x(t)$ if 
+Thus, a sampling rate is a Nyquist-Shannon sufficient sampling rate for signal $x(t)$ is 
+\begin{equation}
+	2 \cdot \max \left\{2 F_{a}, \frac{F_{b}}{2}, \frac{5 F_{c}}{2}\right\}
+\end{equation}
+To be extra concrete and elaborate on the strict $>$ sign, we want to sample at a rate $S$ such that 
 \begin{equation}
 	\exists \epsilon \in \real^{>0} \quad s.t. \quad S = 2\cdot \max\left\{ 2F_a, \frac{F_b}{2}, \frac{5F_c}{2} \right\} + \epsilon
 \end{equation}
